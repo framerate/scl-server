@@ -1,6 +1,6 @@
 import { type UserSchema } from 'database/models/User'
 import { setupTestUser } from '../../../utils/testUtils'
-import { type UserResponse } from '../handler'
+import { type UserResponse } from '../types'
 
 let testUser: UserSchema
 let secondUser: UserSchema
