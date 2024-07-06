@@ -1,0 +1,7 @@
+.env
+node_modules
+.DS_Store
+coverage
+yarn-error.log
+.eslintcache
+dist
