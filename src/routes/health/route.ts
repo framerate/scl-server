@@ -1,6 +1,6 @@
 import { getHealth, getHealthJson } from './handler'
 import { type ServerRoute } from '@hapi/hapi'
-import { healthJson } from './schema'
+import { healthJson as healthJsonSchema } from './schema'
 import validation from './validation'
 
 export default [
@@ -23,7 +23,7 @@ export default [
       description: 'Health check on server API',
       tags: ['api'],
       response: {
-        schema: healthJson,
+        schema: healthJsonSchema,
       },
       validate: validation.getHealthJson,
     },
