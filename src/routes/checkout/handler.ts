@@ -1,22 +1,43 @@
 // import Boom from '@hapi/boom'
+import Boom from '@hapi/boom'
 import { type ResponseToolkit, type Request, type ResponseObject } from '@hapi/hapi'
+import { StoreItem } from '../../database/models'
 // import Stripe from 'stripe'
 // import { StoreItem } from 'database/models'
 
-// enum CheckoutType {
-//   STRIPE,
-//   STEAMWALLET,
-// }
+enum CheckoutType {
+  STRIPE,
+  STEAMWALLET,
+}
 
-// interface CheckoutPayload {
-//   checkoutType: CheckoutType
-//   items: Array<{
-//     sku: string
-//     quantity: number
-//   }>
-// }
+interface CheckoutPayload {
+  checkoutType: CheckoutType
+  currency: 'usd'
+  items: Array<{
+    sku: string
+    quantity: number
+  }>
+}
 
 type CheckoutResponse = boolean | ResponseObject
+
+export const postCheckoutHandler = async (request: Request, h: ResponseToolkit): Promise<CheckoutResponse> => {
+  const { items, currency /*, options */ } = request.payload as CheckoutPayload
+
+  // make sure we only support USD for now
+  if (currency !== 'usd') throw Boom.badRequest('Currency not supported!')
+
+  // map through items array and populate with the item from the database
+  const storeItems = []
+
+  for (const item of items) {
+    const itemDb = await StoreItem.findOne({ sku: item.sku })
+    if (itemDb === null) throw Boom.badRequest('Item not found!')
+    storeItems.push(itemDb)
+  }
+
+  return true
+}
 
 // ** this is the POST, tells the server you INTEND to purchase this "cart" of items
 export const checkoutHandler = async (request: Request, h: ResponseToolkit): Promise<CheckoutResponse> => {
