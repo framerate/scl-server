@@ -36,6 +36,35 @@ export const postCheckoutHandler = async (request: Request, h: ResponseToolkit):
     storeItems.push(itemDb)
   }
 
+  // get the use who is trying to buy something
+  // @TODO
+
+  // check previous purchases and verify we're allowed to buy this item more than once
+  // @TODO -
+
+  // make sure this item isn't otherwise restricted
+  // @TODO -
+
+  // are we trying to spend real money? in-game currency? credits? Do we have enough?
+  // @TODO -
+
+  // ** IF WE GET HERE, WE'RE GOOD TO GO AND THE PURCHASE IS GOING THROUGH
+
+  // FULFIL THE PURCHASE
+  // @TODO -
+
+  // if successful, take away their currency (if this isn't a USD transaction) or purchase flag
+  // @TODO -
+
+  // create purchase in the database
+  // @TODO -
+
+  // track analytics
+  // @TODO -
+
+  // publish a firehose message
+  // @TODO -
+
   return true
 }
 
