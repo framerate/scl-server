@@ -76,5 +76,17 @@ describe('Checkout Module', () => {
       const data = await globalThis.SERVER.inject(options)
       expect(data.statusCode).toBe(400)
     })
+
+    // @TODO wtf is this
+    it.skip('should return 200 and valid purchase if all payload is all correct/valid', async () => {
+      const options = {
+        method: 'POST',
+        url: '/checkout',
+        payload: { checkoutType: 'STEAMWALLET', items: [{ sku: '123', quantity: 1 }], currency: 'usd' },
+        headers: { authorization: `Bearer ${globalThis.tempToken}` },
+      }
+      const data = await globalThis.SERVER.inject(options)
+      expect(data.statusCode).toBe(400)
+    })
   })
 })

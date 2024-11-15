@@ -1,7 +1,8 @@
 // import Boom from '@hapi/boom'
 import Boom from '@hapi/boom'
 import { type ResponseToolkit, type Request, type ResponseObject } from '@hapi/hapi'
-import { StoreItem } from '../../database/models'
+import { Purchase, StoreItem } from '../../database/models'
+import { type PurchaseResponse } from './types'
 // import Stripe from 'stripe'
 // import { StoreItem } from 'database/models'
 
@@ -10,7 +11,7 @@ enum CheckoutType {
   STEAMWALLET,
 }
 
-interface CheckoutPayload {
+export interface CheckoutPayload {
   checkoutType: CheckoutType
   currency: 'usd'
   items: Array<{
@@ -19,13 +20,20 @@ interface CheckoutPayload {
   }>
 }
 
-type CheckoutResponse = boolean | ResponseObject
+// type CheckoutResponse = boolean | ResponseObject
 
-export const postCheckoutHandler = async (request: Request, h: ResponseToolkit): Promise<CheckoutResponse> => {
+export const postCheckoutHandler = async (request: Request, h: ResponseToolkit): Promise<PurchaseResponse> => {
   const { items, currency /*, options */ } = request.payload as CheckoutPayload
+
+  // console.log(`auth: ${JSON.stringify(request.auth.credentials)}`)
 
   // make sure we only support USD for now
   if (currency !== 'usd') throw Boom.badRequest('Currency not supported!')
+
+  // get the use who is trying to buy something
+  // const userDb = await User.validateAndGetUserById(request.auth.credentials.userId)
+
+  // console.log(`user: ${JSON.stringify(userDb)}`)
 
   // map through items array and populate with the item from the database
   const storeItems = []
@@ -35,9 +43,6 @@ export const postCheckoutHandler = async (request: Request, h: ResponseToolkit):
     if (itemDb === null) throw Boom.badRequest('Item not found!')
     storeItems.push(itemDb)
   }
-
-  // get the use who is trying to buy something
-  // @TODO
 
   // check previous purchases and verify we're allowed to buy this item more than once
   // @TODO -
@@ -50,8 +55,17 @@ export const postCheckoutHandler = async (request: Request, h: ResponseToolkit):
 
   // ** IF WE GET HERE, WE'RE GOOD TO GO AND THE PURCHASE IS GOING THROUGH
 
-  // FULFIL THE PURCHASE
-  // @TODO -
+  // FULFILL THE PURCHASE
+  const p = new Purchase({
+    user: request.auth.credentials.userId,
+    items: storeItems.map((item, index) => ({
+      sku: item.sku,
+      quantity: items[index].quantity,
+    })),
+  })
+
+  // TODO try catch?
+  await p.save()
 
   // if successful, take away their currency (if this isn't a USD transaction) or purchase flag
   // @TODO -
@@ -65,10 +79,12 @@ export const postCheckoutHandler = async (request: Request, h: ResponseToolkit):
   // publish a firehose message
   // @TODO -
 
-  return true
+  return p
 }
 
 // ** this is the POST, tells the server you INTEND to purchase this "cart" of items
+type CheckoutResponse = boolean | ResponseObject
+
 export const checkoutHandler = async (request: Request, h: ResponseToolkit): Promise<CheckoutResponse> => {
   // const { checkoutType /*, items = [] */ } = request.payload as CheckoutPayload
 

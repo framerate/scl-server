@@ -3,6 +3,7 @@ import healthCheckRoutes from './health/route'
 import authRoutes from './auth/route'
 import checkoutRoutes from './checkout/route'
 import userRoutes from './user/route'
+import storeRoutes from './store/route'
 import { User } from '../database/models'
 
 const routes: ServerRoute[] = [
@@ -11,6 +12,7 @@ const routes: ServerRoute[] = [
   ...healthCheckRoutes,
   ...checkoutRoutes,
   ...userRoutes,
+  ...storeRoutes,
   // crud modules
   // temp index route
   {
