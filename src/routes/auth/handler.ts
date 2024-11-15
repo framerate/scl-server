@@ -1,6 +1,7 @@
 import { type Request } from '@hapi/hapi'
-import User from '../../database/models/User'
+import User, { AccountFlags } from '../../database/models/User'
 import { generateToken } from './utils'
+import Boom from '@hapi/boom'
 
 interface LoginPayload {
   email: string
@@ -35,11 +36,23 @@ export const register = async (request: Request): Promise<LoginOrRegisterRespons
 
   const passwordHash = await User.hashPassword(password)
 
+  // check if user already exists
+  const existingUser = await User.findOne({ email })
+
+  if (existingUser !== null) {
+    throw Boom.badRequest('User already exists')
+  }
+
   const user = await User.create({
     name,
     email,
     password: passwordHash,
   })
+
+  // TEMP - add a flag so a user can create a store
+  await user.addFlag(AccountFlags.CAN_CREATE_STORE)
+
+  await user.save()
 
   return {
     token: generateToken(user.getIdentifierAsString()),

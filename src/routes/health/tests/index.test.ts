@@ -17,5 +17,5 @@ test('/healthJson should return a JSON object', async () => {
   const data = await globalThis.SERVER.inject(options)
   expect(data.statusCode).toBe(200)
   expect(data.result).toHaveProperty('healthy', true)
-  expect(data.result).toHaveProperty('userCount', 0)
+  expect(data.result).toHaveProperty('userCount')
 })

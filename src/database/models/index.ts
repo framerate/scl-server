@@ -1,3 +1,5 @@
 import User from './User'
+import StoreItem from './StoreItem'
+import Purchase from './Purchase'
 
-export { User }
+export { User, StoreItem, Purchase }

@@ -1,10 +1,15 @@
-let tempToken: string
-
-afterAll(async () => {
-  await globalThis.DB.models.User.deleteMany({ email: 'justin@secretcowlevel.com' })
-})
+import { setupTestUser } from '../../../utils/testUtils'
 
 describe('Auth Module', () => {
+  beforeAll(async () => {
+    await setupTestUser({ email: 'justin@secretcowlevel.com' }, true)
+  })
+
+  afterAll(async () => {
+    await globalThis.DB.models.User.deleteMany({ email: 'justin@secretcowlevel.com' })
+    await globalThis.DB.models.User.deleteMany({ email: 'justin+authtest@secretcowlevel.com' })
+  })
+
   describe('POST /auth/register', () => {
     it('should return 400 error if name is missing', async () => {
       const options = {
@@ -51,7 +56,7 @@ describe('Auth Module', () => {
         url: '/auth/register',
         payload: {
           name: 'Justin Reynard',
-          email: 'justin@secretcowlevel.com',
+          email: 'justin+authtest@secretcowlevel.com',
           password: 'this.is.a.test.password',
         },
       }
@@ -104,7 +109,7 @@ describe('Auth Module', () => {
         method: 'POST',
         url: '/auth/login',
         payload: {
-          email: 'justin@secretcowlevel.com',
+          email: 'justin+authtest@secretcowlevel.com',
           password: 'this.is.a.test.password',
         },
       }
@@ -121,7 +126,6 @@ describe('Auth Module', () => {
 
       expect(data.statusCode).toBe(200)
       expect(data.result).toHaveProperty('token')
-      tempToken = data?.result?.token
     })
   })
 
@@ -149,9 +153,10 @@ describe('Auth Module', () => {
       const options = {
         method: 'GET',
         url: '/private',
-        headers: { authorization: `Bearer ${tempToken}` },
+        headers: { authorization: `Bearer ${globalThis.tempToken}` },
       }
-      const data = await globalThis.SERVER.inject(options)
+      const data = (await globalThis.SERVER.inject(options)) as { statusCode: number; result: { userId: string } }
+
       expect(data.statusCode).toBe(200)
     })
   })

@@ -23,6 +23,13 @@ export default [
       description: 'Register user',
       validate: validation.register,
       tags: ['api'],
+      // response: {
+      //   failAction: async (req, h, err) => {
+      //     if (err) {
+      //       console.log(err)
+      //     }
+      //   },
+      // },
     },
   },
 ] as ServerRoute[]
